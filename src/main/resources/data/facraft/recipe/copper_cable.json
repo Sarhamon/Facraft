@@ -1,0 +1,8 @@
+{
+  "type": "facraft:assembling",
+  "ingredients": [
+    { "item": "minecraft:copper_ingot", "count": 1 }
+  ],
+  "result": { "id": "facraft:copper_cable", "count": 2 },
+  "time": 0.5
+}

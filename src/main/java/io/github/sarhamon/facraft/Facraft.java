@@ -57,6 +57,7 @@ public class Facraft {
             () -> new MenuType<>(AssemblingMachineMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
     public static final DeferredItem<Item> IRON_GEAR_WHEEL = ITEMS.registerSimpleItem("iron_gear_wheel");
+    public static final DeferredItem<Item> COPPER_CABLE = ITEMS.registerSimpleItem("copper_cable");
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FACRAFT_TAB = CREATIVE_MODE_TABS.register("facraft", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.facraft"))
@@ -64,6 +65,7 @@ public class Facraft {
             .icon(() -> IRON_GEAR_WHEEL.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(IRON_GEAR_WHEEL.get());
+                output.accept(COPPER_CABLE.get());
                 output.accept(ASSEMBLING_MACHINE_ITEM.get());
             }).build());
 

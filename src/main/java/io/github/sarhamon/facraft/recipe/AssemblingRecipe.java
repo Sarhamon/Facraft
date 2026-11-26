@@ -1,5 +1,6 @@
 package io.github.sarhamon.facraft.recipe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.serialization.MapCodec;
@@ -13,6 +14,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -23,6 +25,14 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
  * 실제 걸리는 시간 = time / 기계 제작 속도.
  */
 public record AssemblingRecipe(List<SizedIngredient> ingredients, ItemStack result, float time) implements Recipe<AssemblingInput> {
+
+    // 전체 조립기 레시피를 ID 순으로 정렬. 서버와 클라이언트에서 같은 순서가 나와야 GUI 버튼 번호가 맞음
+    public static List<RecipeHolder<AssemblingRecipe>> sortedRecipes(Level level) {
+        List<RecipeHolder<AssemblingRecipe>> recipes = new ArrayList<>(
+                level.getRecipeManager().getAllRecipesFor(Facraft.ASSEMBLING_RECIPE_TYPE.get()));
+        recipes.sort((a, b) -> a.id().compareTo(b.id()));
+        return recipes;
+    }
 
     // 재료마다, 입력 칸 전체에서 그 재료에 맞는 아이템 개수를 합쳐 필요한 개수 이상인지 확인
     @Override

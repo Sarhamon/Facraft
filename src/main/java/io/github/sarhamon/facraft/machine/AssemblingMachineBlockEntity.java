@@ -3,6 +3,8 @@ package io.github.sarhamon.facraft.machine;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import io.github.sarhamon.facraft.Facraft;
 import io.github.sarhamon.facraft.recipe.AssemblingInput;
 import io.github.sarhamon.facraft.recipe.AssemblingRecipe;
@@ -10,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -38,6 +41,8 @@ public class AssemblingMachineBlockEntity extends BlockEntity implements MenuPro
         }
     };
 
+    @Nullable
+    private ResourceLocation selectedRecipeId;
     private int progress;
     private int totalTicks;
 
@@ -67,19 +72,41 @@ public class AssemblingMachineBlockEntity extends BlockEntity implements MenuPro
         return inventory;
     }
 
+    public ContainerData getData() {
+        return data;
+    }
+
+    @Nullable
+    public ResourceLocation getSelectedRecipeId() {
+        return selectedRecipeId;
+    }
+
+    // 레시피를 바꾸면 진행도는 처음부터. 입력 칸에 남은 재료는 그대로 둠
+    public void setSelectedRecipe(ResourceLocation id) {
+        if (id.equals(selectedRecipeId)) {
+            return;
+        }
+        selectedRecipeId = id;
+        progress = 0;
+        totalTicks = 0;
+        setChanged();
+    }
+
     // 서버에서 매 틱 호출 (초당 20회)
     public static void serverTick(Level level, BlockPos pos, BlockState state, AssemblingMachineBlockEntity machine) {
         machine.tick(level);
     }
 
     private void tick(Level level) {
-        // 2-2 임시: 들어 있는 재료로 레시피를 자동으로 찾음. 2-3에서 GUI로 선택한 레시피로 바꿀 예정
-        AssemblingRecipe recipe = level.getRecipeManager()
-                .getRecipeFor(Facraft.ASSEMBLING_RECIPE_TYPE.get(), currentInput(), level)
+        // GUI에서 선택한 레시피만 만듦. 선택이 없거나, 데이터팩 변경으로 사라졌으면 멈춤
+        AssemblingRecipe recipe = selectedRecipeId == null ? null : level.getRecipeManager()
+                .byKey(selectedRecipeId)
                 .map(RecipeHolder::value)
+                .filter(r -> r instanceof AssemblingRecipe)
+                .map(r -> (AssemblingRecipe) r)
                 .orElse(null);
 
-        if (recipe == null || !inventory.insertItem(OUTPUT_SLOT, recipe.result().copy(), true).isEmpty()) {
+        if (recipe == null || !recipe.matches(currentInput(), level) || !inventory.insertItem(OUTPUT_SLOT, recipe.result().copy(), true).isEmpty()) {
             if (progress != 0 || totalTicks != 0) {
                 progress = 0;
                 totalTicks = 0;
@@ -128,6 +155,9 @@ public class AssemblingMachineBlockEntity extends BlockEntity implements MenuPro
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
         tag.putInt("progress", progress);
+        if (selectedRecipeId != null) {
+            tag.putString("recipe", selectedRecipeId.toString());
+        }
     }
 
     @Override
@@ -135,6 +165,7 @@ public class AssemblingMachineBlockEntity extends BlockEntity implements MenuPro
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
         progress = tag.getInt("progress");
+        selectedRecipeId = tag.contains("recipe") ? ResourceLocation.tryParse(tag.getString("recipe")) : null;
     }
 
     @Override
@@ -144,6 +175,6 @@ public class AssemblingMachineBlockEntity extends BlockEntity implements MenuPro
 
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new AssemblingMachineMenu(containerId, playerInventory, inventory, data, worldPosition);
+        return new AssemblingMachineMenu(containerId, playerInventory, this);
     }
 }
