@@ -22,6 +22,12 @@ public class AssemblingMachineScreen extends AbstractContainerScreen<AssemblingM
             int y = topPos + slot.y;
             graphics.fill(x - 1, y - 1, x + 17, y + 17, 0xFF8B8B8B);
         }
+
+        // 진행 바: 입력 칸과 출력 칸 사이
+        int barX = leftPos + 102;
+        int barY = topPos + 39;
+        graphics.fill(barX, barY, barX + 26, barY + 8, 0xFF8B8B8B);
+        graphics.fill(barX, barY, barX + menu.getScaledProgress(26), barY + 8, 0xFFE6B428);
     }
 
     @Override

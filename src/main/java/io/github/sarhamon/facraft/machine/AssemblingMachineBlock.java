@@ -2,6 +2,7 @@ package io.github.sarhamon.facraft.machine;
 
 import com.mojang.serialization.MapCodec;
 
+import io.github.sarhamon.facraft.Facraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -9,6 +10,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -33,6 +36,13 @@ public class AssemblingMachineBlock extends BaseEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new AssemblingMachineBlockEntity(pos, state);
+    }
+
+    // 서버에서만 틱을 돌림. 클라이언트는 GUI에 동기화된 값만 그림
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return level.isClientSide ? null
+                : createTickerHelper(type, Facraft.ASSEMBLING_MACHINE_BLOCK_ENTITY.get(), AssemblingMachineBlockEntity::serverTick);
     }
 
     @Override

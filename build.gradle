@@ -54,6 +54,8 @@ neoForge {
     runs {
         client {
             client()
+            // 개발용 창 크기 (창모드 1600x900)
+            programArguments.addAll '--width', '1600', '--height', '900'
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }

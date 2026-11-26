@@ -1,0 +1,8 @@
+{
+  "type": "facraft:assembling",
+  "ingredients": [
+    { "item": "minecraft:iron_ingot", "count": 2 }
+  ],
+  "result": { "id": "facraft:iron_gear_wheel" },
+  "time": 0.5
+}
