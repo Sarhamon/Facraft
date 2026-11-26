@@ -2,5 +2,10 @@
   "itemGroup.facraft": "Facraft",
   "block.facraft.assembling_machine": "조립기",
   "item.facraft.iron_gear_wheel": "철 톱니바퀴",
-  "item.facraft.copper_cable": "구리 전선"
+  "item.facraft.copper_cable": "구리 전선",
+  "block.facraft.assembling_machine_frame": "조립기 프레임",
+  "item.facraft.hammer": "망치",
+  "message.facraft.assembling_machine.not_formed": "형성되지 않았습니다. 코어 주위를 프레임으로 채우고(3x3x2) 망치로 우클릭하세요.",
+  "message.facraft.assembling_machine.incomplete": "구조물이 완성되지 않았습니다: 3x3x2, 코어는 1층 가운데.",
+  "message.facraft.assembling_machine.formed": "조립기가 형성되었습니다."
 }

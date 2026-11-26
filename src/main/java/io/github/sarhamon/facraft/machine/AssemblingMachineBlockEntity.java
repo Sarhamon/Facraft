@@ -94,7 +94,9 @@ public class AssemblingMachineBlockEntity extends BlockEntity implements MenuPro
 
     // 서버에서 매 틱 호출 (초당 20회)
     public static void serverTick(Level level, BlockPos pos, BlockState state, AssemblingMachineBlockEntity machine) {
-        machine.tick(level);
+        if (state.getValue(AssemblingMachineStructure.FORMED)) {
+            machine.tick(level);
+        }
     }
 
     private void tick(Level level) {

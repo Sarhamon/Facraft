@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 
 import io.github.sarhamon.facraft.machine.AssemblingMachineBlock;
 import io.github.sarhamon.facraft.machine.AssemblingMachineBlockEntity;
+import io.github.sarhamon.facraft.machine.AssemblingMachineFrameBlock;
 import io.github.sarhamon.facraft.machine.AssemblingMachineMenu;
 import io.github.sarhamon.facraft.recipe.AssemblingRecipe;
 import net.minecraft.core.registries.Registries;
@@ -51,6 +52,9 @@ public class Facraft {
     public static final DeferredBlock<AssemblingMachineBlock> ASSEMBLING_MACHINE = BLOCKS.registerBlock("assembling_machine", AssemblingMachineBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops());
     public static final DeferredItem<BlockItem> ASSEMBLING_MACHINE_ITEM = ITEMS.registerSimpleBlockItem("assembling_machine", ASSEMBLING_MACHINE);
+    public static final DeferredBlock<AssemblingMachineFrameBlock> ASSEMBLING_MACHINE_FRAME = BLOCKS.registerBlock("assembling_machine_frame", AssemblingMachineFrameBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops());
+    public static final DeferredItem<BlockItem> ASSEMBLING_MACHINE_FRAME_ITEM = ITEMS.registerSimpleBlockItem("assembling_machine_frame", ASSEMBLING_MACHINE_FRAME);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AssemblingMachineBlockEntity>> ASSEMBLING_MACHINE_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("assembling_machine",
             () -> BlockEntityType.Builder.of(AssemblingMachineBlockEntity::new, ASSEMBLING_MACHINE.get()).build(null));
     public static final DeferredHolder<MenuType<?>, MenuType<AssemblingMachineMenu>> ASSEMBLING_MACHINE_MENU = MENUS.register("assembling_machine",
@@ -58,6 +62,8 @@ public class Facraft {
 
     public static final DeferredItem<Item> IRON_GEAR_WHEEL = ITEMS.registerSimpleItem("iron_gear_wheel");
     public static final DeferredItem<Item> COPPER_CABLE = ITEMS.registerSimpleItem("copper_cable");
+    // 멀티블록 형성용. 동작은 조립기 블록 쪽(useItemOn)에서 처리
+    public static final DeferredItem<Item> HAMMER = ITEMS.registerSimpleItem("hammer", new Item.Properties().stacksTo(1));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FACRAFT_TAB = CREATIVE_MODE_TABS.register("facraft", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.facraft"))
@@ -67,6 +73,8 @@ public class Facraft {
                 output.accept(IRON_GEAR_WHEEL.get());
                 output.accept(COPPER_CABLE.get());
                 output.accept(ASSEMBLING_MACHINE_ITEM.get());
+                output.accept(ASSEMBLING_MACHINE_FRAME_ITEM.get());
+                output.accept(HAMMER.get());
             }).build());
 
     public Facraft(IEventBus modEventBus) {
