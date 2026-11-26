@@ -1,0 +1,45 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "facraft:block/assembling_machine_frame",
+    "base": "facraft:block/assembling_machine_frame",
+    "side": "facraft:block/assembling_machine_formed_side",
+    "top": "facraft:block/assembling_machine_formed_top"
+  },
+  "elements": [
+    {
+      "__comment": "받침판 3x3, 높이 4px",
+      "from": [-16, 0, -16], "to": [32, 4, 32],
+      "faces": {
+        "down":  { "uv": [0, 0, 16, 16], "texture": "#base" },
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#base" },
+        "north": { "uv": [0, 12, 16, 16], "texture": "#base" },
+        "south": { "uv": [0, 12, 16, 16], "texture": "#base" },
+        "west":  { "uv": [0, 12, 16, 16], "texture": "#base" },
+        "east":  { "uv": [0, 12, 16, 16], "texture": "#base" }
+      }
+    },
+    {
+      "__comment": "본체: 가장자리에서 2px 들어간 상자",
+      "from": [-14, 4, -14], "to": [30, 28, 30],
+      "faces": {
+        "north": { "uv": [0, 0, 16, 16], "texture": "#side" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#side" },
+        "west":  { "uv": [0, 0, 16, 16], "texture": "#side" },
+        "east":  { "uv": [0, 0, 16, 16], "texture": "#side" }
+      }
+    },
+    {
+      "__comment": "상판 3x3, 높이 4px",
+      "from": [-16, 28, -16], "to": [32, 32, 32],
+      "faces": {
+        "down":  { "uv": [0, 0, 16, 16], "texture": "#base" },
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#top" },
+        "north": { "uv": [0, 0, 16, 4], "texture": "#base" },
+        "south": { "uv": [0, 0, 16, 4], "texture": "#base" },
+        "west":  { "uv": [0, 0, 16, 4], "texture": "#base" },
+        "east":  { "uv": [0, 0, 16, 4], "texture": "#base" }
+      }
+    }
+  ]
+}

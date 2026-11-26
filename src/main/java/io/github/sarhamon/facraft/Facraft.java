@@ -50,10 +50,10 @@ public class Facraft {
             AssemblingRecipe.Serializer::new);
 
     public static final DeferredBlock<AssemblingMachineBlock> ASSEMBLING_MACHINE = BLOCKS.registerBlock("assembling_machine", AssemblingMachineBlock::new,
-            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops());
+            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops().noOcclusion());
     public static final DeferredItem<BlockItem> ASSEMBLING_MACHINE_ITEM = ITEMS.registerSimpleBlockItem("assembling_machine", ASSEMBLING_MACHINE);
     public static final DeferredBlock<AssemblingMachineFrameBlock> ASSEMBLING_MACHINE_FRAME = BLOCKS.registerBlock("assembling_machine_frame", AssemblingMachineFrameBlock::new,
-            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops());
+            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops().noOcclusion());
     public static final DeferredItem<BlockItem> ASSEMBLING_MACHINE_FRAME_ITEM = ITEMS.registerSimpleBlockItem("assembling_machine_frame", ASSEMBLING_MACHINE_FRAME);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AssemblingMachineBlockEntity>> ASSEMBLING_MACHINE_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("assembling_machine",
             () -> BlockEntityType.Builder.of(AssemblingMachineBlockEntity::new, ASSEMBLING_MACHINE.get()).build(null));

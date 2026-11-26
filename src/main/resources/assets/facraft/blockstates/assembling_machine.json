@@ -1,6 +1,6 @@
 {
   "variants": {
     "formed=false": { "model": "facraft:block/assembling_machine" },
-    "formed=true": { "model": "facraft:block/assembling_machine" }
+    "formed=true": { "model": "facraft:block/assembling_machine_formed" }
   }
 }

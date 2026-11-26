@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
@@ -27,6 +28,12 @@ public class AssemblingMachineFrameBlock extends Block {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FORMED);
+    }
+
+    // 형성되면 프레임은 숨기고 코어가 3x3x2 모델을 그림. 충돌 판정은 그대로
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        return state.getValue(FORMED) ? RenderShape.INVISIBLE : RenderShape.MODEL;
     }
 
     // 망치 처리는 여기서. 기본 상호작용(useWithoutItem)보다 먼저 호출됨
