@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "facraft:block/assembling_machine" }
+  }
+}
