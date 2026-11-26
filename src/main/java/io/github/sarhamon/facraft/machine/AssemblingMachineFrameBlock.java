@@ -11,12 +11,16 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 // 조립기 프레임. BlockEntity 없이 형성 여부만 블록 상태로 가짐
 public class AssemblingMachineFrameBlock extends Block {
@@ -34,6 +38,24 @@ public class AssemblingMachineFrameBlock extends Block {
     @Override
     protected RenderShape getRenderShape(BlockState state) {
         return state.getValue(FORMED) ? RenderShape.INVISIBLE : RenderShape.MODEL;
+    }
+
+    // 형성되면 마우스를 올렸을 때 구조 전체(3x3x2) 테두리를 보여 줌
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if (state.getValue(FORMED)) {
+            List<BlockPos> cores = AssemblingMachineStructure.findCores(level, pos, true);
+            if (!cores.isEmpty()) {
+                return AssemblingMachineStructure.formedShape(pos, cores.get(0));
+            }
+        }
+        return Shapes.block();
+    }
+
+    // 충돌 판정은 항상 1칸 (기본값은 getShape를 따라가므로 따로 지정)
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return Shapes.block();
     }
 
     // 망치 처리는 여기서. 기본 상호작용(useWithoutItem)보다 먼저 호출됨

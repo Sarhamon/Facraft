@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["C", "C"],
+  "key": { "C": { "item": "minecraft:copper_ingot" } },
+  "result": { "id": "facraft:copper_cable", "count": 2 }
+}

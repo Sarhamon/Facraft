@@ -5,10 +5,12 @@ import java.util.List;
 
 import io.github.sarhamon.facraft.Facraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * 조립기 멀티블록: 3x3x2. 코어는 1층 가운데, 나머지 17칸은 프레임.
@@ -41,8 +43,16 @@ public final class AssemblingMachineStructure {
         return positions;
     }
 
+    // 형성된 구조 전체 테두리 (코어 기준, 픽셀 단위: 3x3 바닥, 높이 2블록)
+    private static final VoxelShape FORMED_SHAPE = Block.box(-16, 0, -16, 32, 32, 32);
+
+    // partPos 블록 기준으로 옮긴 전체 테두리
+    public static VoxelShape formedShape(BlockPos partPos, BlockPos core) {
+        return FORMED_SHAPE.move(core.getX() - partPos.getX(), core.getY() - partPos.getY(), core.getZ() - partPos.getZ());
+    }
+
     // 프레임 위치에서, 형성 상태가 formed인 코어 후보들을 찾음
-    public static List<BlockPos> findCores(Level level, BlockPos framePos, boolean formed) {
+    public static List<BlockPos> findCores(BlockGetter level, BlockPos framePos, boolean formed) {
         List<BlockPos> cores = new ArrayList<>();
         for (int dy = -1; dy <= 0; dy++) {
             for (int dx = -1; dx <= 1; dx++) {

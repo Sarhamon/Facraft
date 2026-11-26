@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": ["IGI", "CTC", "IGI"],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "G": { "item": "facraft:iron_gear_wheel" },
+    "C": { "item": "facraft:copper_cable" },
+    "T": { "item": "minecraft:crafting_table" }
+  },
+  "result": { "id": "facraft:assembling_machine", "count": 1 }
+}
