@@ -4,14 +4,19 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
+import io.github.sarhamon.facraft.machine.AssemblingMachineBlock;
+import io.github.sarhamon.facraft.machine.AssemblingMachineBlockEntity;
+import io.github.sarhamon.facraft.machine.AssemblingMachineMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
@@ -29,11 +34,16 @@ public class Facraft {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MODID);
+    public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, MODID);
 
-    // 로드맵 2단계에서 BlockEntity와 GUI를 붙일 조립기. 지금은 단순 블록.
-    public static final DeferredBlock<Block> ASSEMBLING_MACHINE = BLOCKS.registerSimpleBlock("assembling_machine",
+    public static final DeferredBlock<AssemblingMachineBlock> ASSEMBLING_MACHINE = BLOCKS.registerBlock("assembling_machine", AssemblingMachineBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops());
     public static final DeferredItem<BlockItem> ASSEMBLING_MACHINE_ITEM = ITEMS.registerSimpleBlockItem("assembling_machine", ASSEMBLING_MACHINE);
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AssemblingMachineBlockEntity>> ASSEMBLING_MACHINE_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("assembling_machine",
+            () -> BlockEntityType.Builder.of(AssemblingMachineBlockEntity::new, ASSEMBLING_MACHINE.get()).build(null));
+    public static final DeferredHolder<MenuType<?>, MenuType<AssemblingMachineMenu>> ASSEMBLING_MACHINE_MENU = MENUS.register("assembling_machine",
+            () -> new MenuType<>(AssemblingMachineMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
     public static final DeferredItem<Item> IRON_GEAR_WHEEL = ITEMS.registerSimpleItem("iron_gear_wheel");
 
@@ -50,5 +60,7 @@ public class Facraft {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
+        BLOCK_ENTITY_TYPES.register(modEventBus);
+        MENUS.register(modEventBus);
     }
 }
