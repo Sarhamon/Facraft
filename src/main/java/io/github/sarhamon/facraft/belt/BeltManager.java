@@ -166,11 +166,15 @@ public final class BeltManager {
         sync();
     }
 
-    // 라인 끝에 닿은 아이템을 다음 칸(다른 라인의 시작, 또는 고리 모양이면 자기 시작)으로 넘김
+    // 라인 끝에 닿은 아이템을 넘김: 이어진 다음 칸(다른 라인의 시작, 고리면 자기 시작), 또는 사이드 로딩
     private void handOff(BeltLine line) {
         Tile next = next(line.last());
-        if (next == null || next.line == null) {
-            return; // 다음 칸이 없거나, 언로드됐거나, 이 칸에서 받는 방향이 아님 → 대기
+        if (next == null) {
+            sideLoad(line);
+            return;
+        }
+        if (next.line == null) {
+            return; // 언로드됨 → 대기
         }
         for (int lane = 0; lane < 2; lane++) {
             BeltLane from = line.lanes[lane];
@@ -178,6 +182,39 @@ public final class BeltManager {
                 from.removeFront();
                 line.changed = true;
                 next.line.changed = true;
+            }
+        }
+    }
+
+    /**
+     * 사이드 로딩: 라인 끝이 직선 벨트의 옆면을 들이받으면, 들어오는 쪽에 가까운 레인의 칸 중간(128)에 넣음.
+     * 들어오는 라인의 두 레인이 그 한 레인으로 합쳐지므로, 성공할 때마다 우선 레인을 번갈아 바꿈.
+     */
+    private void sideLoad(BeltLine line) {
+        Tile last = line.last();
+        Tile target = tiles.get(last.outputPos());
+        if (target == null || target.line == null || target.shape != BeltShape.STRAIGHT) {
+            return;
+        }
+        int targetLane;
+        if (last.facing == target.facing.getClockWise()) {
+            targetLane = 0; // 대상의 왼쪽 옆에서 들어옴
+        } else if (last.facing == target.facing.getCounterClockWise()) {
+            targetLane = 1; // 오른쪽 옆에서 들어옴
+        } else {
+            return; // 정면으로 마주 봄
+        }
+        BeltLane to = target.line.lanes[targetLane];
+        int distFromEnd = target.line.distFromEnd(target.index, BeltLine.TILE_LENGTH / 2);
+        for (int k = 0; k < 2; k++) {
+            int lane = (line.sideLoadPriority + k) % 2;
+            BeltLane from = line.lanes[lane];
+            if (from.frontAtEnd() && to.insert(distFromEnd, from.front())) {
+                from.removeFront();
+                line.sideLoadPriority = 1 - lane;
+                line.changed = true;
+                target.line.changed = true;
+                return; // 같은 자리에는 한 틱에 하나만 들어갈 수 있음
             }
         }
     }

@@ -12,6 +12,7 @@ final class BeltLine {
     final List<BeltManager.Tile> tiles; // 뒤 → 앞(출구) 순서
     final BeltLane[] lanes = {new BeltLane(), new BeltLane()};
     boolean changed = true; // 이번 틱에 클라이언트로 보낼 변화가 있는지
+    int sideLoadPriority; // 사이드 로딩 시 먼저 넣어 볼 레인 (번갈아 바뀜)
 
     BeltLine(List<BeltManager.Tile> tiles) {
         this.tiles = tiles;
