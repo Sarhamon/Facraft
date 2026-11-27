@@ -7,5 +7,6 @@
   "item.facraft.hammer": "Hammer",
   "message.facraft.assembling_machine.not_formed": "Not formed. Surround the core with frames (3x3x2) and right-click with a hammer.",
   "message.facraft.assembling_machine.incomplete": "Structure incomplete: 3x3x2 with the core at the bottom center.",
-  "message.facraft.assembling_machine.formed": "Assembling machine formed."
+  "message.facraft.assembling_machine.formed": "Assembling machine formed.",
+  "block.facraft.transport_belt": "Transport Belt"
 }

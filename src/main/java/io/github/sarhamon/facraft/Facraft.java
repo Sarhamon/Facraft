@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
+import io.github.sarhamon.facraft.belt.BeltSyncPayload;
+import io.github.sarhamon.facraft.belt.TransportBeltBlock;
+import io.github.sarhamon.facraft.belt.TransportBeltBlockEntity;
 import io.github.sarhamon.facraft.machine.AssemblingMachineBlock;
 import io.github.sarhamon.facraft.machine.AssemblingMachineBlockEntity;
 import io.github.sarhamon.facraft.machine.AssemblingMachineFrameBlock;
@@ -60,6 +63,12 @@ public class Facraft {
     public static final DeferredHolder<MenuType<?>, MenuType<AssemblingMachineMenu>> ASSEMBLING_MACHINE_MENU = MENUS.register("assembling_machine",
             () -> new MenuType<>(AssemblingMachineMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final DeferredBlock<TransportBeltBlock> TRANSPORT_BELT = BLOCKS.registerBlock("transport_belt", TransportBeltBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_YELLOW).strength(1.0f).sound(SoundType.METAL).noOcclusion());
+    public static final DeferredItem<BlockItem> TRANSPORT_BELT_ITEM = ITEMS.registerSimpleBlockItem("transport_belt", TRANSPORT_BELT);
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TransportBeltBlockEntity>> TRANSPORT_BELT_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("transport_belt",
+            () -> BlockEntityType.Builder.of(TransportBeltBlockEntity::new, TRANSPORT_BELT.get()).build(null));
+
     public static final DeferredItem<Item> IRON_GEAR_WHEEL = ITEMS.registerSimpleItem("iron_gear_wheel");
     public static final DeferredItem<Item> COPPER_CABLE = ITEMS.registerSimpleItem("copper_cable");
     // 멀티블록 형성용. 동작은 조립기 블록 쪽(useItemOn)에서 처리
@@ -75,6 +84,7 @@ public class Facraft {
                 output.accept(ASSEMBLING_MACHINE_ITEM.get());
                 output.accept(ASSEMBLING_MACHINE_FRAME_ITEM.get());
                 output.accept(HAMMER.get());
+                output.accept(TRANSPORT_BELT_ITEM.get());
             }).build());
 
     public Facraft(IEventBus modEventBus) {
@@ -85,5 +95,6 @@ public class Facraft {
         MENUS.register(modEventBus);
         RECIPE_TYPES.register(modEventBus);
         RECIPE_SERIALIZERS.register(modEventBus);
+        modEventBus.addListener(BeltSyncPayload::register);
     }
 }
