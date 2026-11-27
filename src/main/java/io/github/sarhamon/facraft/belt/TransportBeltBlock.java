@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -31,11 +33,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class TransportBeltBlock extends BaseEntityBlock {
     public static final MapCodec<TransportBeltBlock> CODEC = simpleCodec(TransportBeltBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 2, 16);
+    public static final EnumProperty<BeltShape> SHAPE = EnumProperty.create("shape", BeltShape.class);
+    private static final VoxelShape OUTLINE = Block.box(0, 0, 0, 16, 2, 16);
 
     public TransportBeltBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
+        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(SHAPE, BeltShape.STRAIGHT));
     }
 
     @Override
@@ -45,18 +48,39 @@ public class TransportBeltBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, SHAPE);
     }
 
-    // 플레이어가 바라보는 방향으로 흐르게 설치
+    // 플레이어가 바라보는 방향으로 흐르게 설치. 모양(직선/코너)은 주변 벨트로 결정
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(FACING, context.getHorizontalDirection());
+        Direction facing = context.getHorizontalDirection();
+        return defaultBlockState().setValue(FACING, facing)
+                .setValue(SHAPE, BeltShape.compute(context.getLevel(), context.getClickedPos(), facing));
+    }
+
+    // 옆 칸이 바뀌면 모양을 다시 계산
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
+                                     BlockPos pos, BlockPos neighborPos) {
+        if (direction.getAxis().isHorizontal()) {
+            return state.setValue(SHAPE, BeltShape.compute(level, pos, state.getValue(FACING)));
+        }
+        return state;
+    }
+
+    // 모양이 바뀌면 매니저에 알려 라인을 다시 묶게 함 (같은 블록끼리 상태만 바뀐 경우)
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (level instanceof ServerLevel serverLevel && oldState.is(this) && oldState.getValue(SHAPE) != state.getValue(SHAPE)) {
+            BeltManager.get(serverLevel).updateShape(pos, state.getValue(SHAPE));
+        }
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return OUTLINE;
     }
 
     @Override

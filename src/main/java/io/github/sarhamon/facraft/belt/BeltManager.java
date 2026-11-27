@@ -38,15 +38,27 @@ public final class BeltManager {
     static final class Tile {
         final BlockPos pos;
         final Direction facing;
+        BeltShape shape;
         BeltLine line;
         int index;
         boolean removed;
         boolean dropOnRemove;
         List<BeltItem> pending = new ArrayList<>(); // 라인에 아직 안 들어간 아이템 (불러온 직후, 재구성 중)
 
-        Tile(BlockPos pos, Direction facing) {
+        Tile(BlockPos pos, Direction facing, BeltShape shape) {
             this.pos = pos;
             this.facing = facing;
+            this.shape = shape;
+        }
+
+        // 아이템이 들어오는 칸 위치 (직선이면 뒤, 코너면 옆)
+        BlockPos inputPos() {
+            return pos.relative(shape.inputSide(facing));
+        }
+
+        // 아이템을 내보내는 칸 위치
+        BlockPos outputPos() {
+            return pos.relative(facing);
         }
     }
 
@@ -66,8 +78,8 @@ public final class BeltManager {
 
     // ---- 칸 등록/해제 (BlockEntity에서 호출) ----
 
-    void addTile(BlockPos pos, Direction facing, List<BeltItem> savedItems) {
-        Tile tile = new Tile(pos.immutable(), facing);
+    void addTile(BlockPos pos, Direction facing, BeltShape shape, List<BeltItem> savedItems) {
+        Tile tile = new Tile(pos.immutable(), facing, shape);
         tile.pending.addAll(savedItems);
         tiles.put(tile.pos, tile);
         unlinked.add(tile);
@@ -89,6 +101,19 @@ public final class BeltManager {
             if (dropItems) {
                 tile.pending.forEach(item -> drop(tile.pos, item.stack()));
             }
+        }
+        markDirtyAround(pos);
+    }
+
+    // 주변 벨트 변화로 직선 ↔ 코너가 바뀜. 연결이 달라지므로 주변 라인을 다시 묶음
+    void updateShape(BlockPos pos, BeltShape shape) {
+        Tile tile = tiles.get(pos);
+        if (tile == null || tile.shape == shape) {
+            return;
+        }
+        tile.shape = shape;
+        if (tile.line == null) {
+            unlinked.add(tile);
         }
         markDirtyAround(pos);
     }
@@ -143,9 +168,9 @@ public final class BeltManager {
 
     // 라인 끝에 닿은 아이템을 다음 칸(다른 라인의 시작, 또는 고리 모양이면 자기 시작)으로 넘김
     private void handOff(BeltLine line) {
-        Tile next = tiles.get(line.nextPos());
-        if (next == null || next.line == null || next.facing != line.last().facing) {
-            return; // 다음 칸이 없거나 언로드됨 → 대기
+        Tile next = next(line.last());
+        if (next == null || next.line == null) {
+            return; // 다음 칸이 없거나, 언로드됐거나, 이 칸에서 받는 방향이 아님 → 대기
         }
         for (int lane = 0; lane < 2; lane++) {
             BeltLane from = line.lanes[lane];
@@ -232,16 +257,17 @@ public final class BeltManager {
         }
     }
 
-    // 이 칸으로 아이템을 넣어 주는 뒤 칸 (3-1: 같은 방향 직선만)
+    // 이 칸으로 아이템을 넣어 주는 칸: 입력 위치에 있고, 그 칸의 출구가 이 칸이어야 함
     private Tile feeder(Tile tile) {
-        Tile prev = tiles.get(tile.pos.relative(tile.facing.getOpposite()));
-        return prev != null && prev.facing == tile.facing ? prev : null;
+        Tile prev = tiles.get(tile.inputPos());
+        return prev != null && prev.outputPos().equals(tile.pos) ? prev : null;
     }
 
-    // 이 칸이 아이템을 넘겨주는 앞 칸
+    // 이 칸이 아이템을 넘겨주는 칸: 출구 위치에 있고, 그 칸의 입력 위치가 이 칸이어야 함
+    // (옆으로 들이받는 경우는 사이드 로딩이라 여기 해당 안 됨, 3-3)
     private Tile next(Tile tile) {
-        Tile next = tiles.get(tile.pos.relative(tile.facing));
-        return next != null && next.facing == tile.facing ? next : null;
+        Tile next = tiles.get(tile.outputPos());
+        return next != null && next.inputPos().equals(tile.pos) ? next : null;
     }
 
     interface TileItemVisitor {

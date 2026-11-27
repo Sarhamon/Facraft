@@ -2,8 +2,6 @@ package io.github.sarhamon.facraft.belt;
 
 import java.util.List;
 
-import net.minecraft.core.BlockPos;
-
 /**
  * 이어진 벨트 칸들의 묶음. 레인 2개를 가짐. 런타임 캐시라 저장되지 않음
  * (저장은 칸 단위로 내보냄, BeltManager 참고).
@@ -25,12 +23,6 @@ final class BeltLine {
 
     BeltManager.Tile last() {
         return tiles.get(tiles.size() - 1);
-    }
-
-    // 라인 끝 다음 칸 위치 (아이템이 넘어갈 곳)
-    BlockPos nextPos() {
-        BeltManager.Tile last = last();
-        return last.pos.relative(last.facing);
     }
 
     // 칸 index, 칸 안 offset → 라인 끝에서 거리

@@ -39,7 +39,9 @@ public class TransportBeltBlockEntity extends BlockEntity {
     public void onLoad() {
         super.onLoad();
         if (level instanceof ServerLevel serverLevel) {
-            BeltManager.get(serverLevel).addTile(worldPosition, getBlockState().getValue(TransportBeltBlock.FACING), items);
+            BlockState state = getBlockState();
+            BeltManager.get(serverLevel).addTile(worldPosition, state.getValue(TransportBeltBlock.FACING),
+                    state.getValue(TransportBeltBlock.SHAPE), items);
             items = List.of();
         }
     }
